@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MovieManagerTest {
 
     @Test
-    public void testAddAndFindAll() {
+    public void shouldAddAndFindAll() {
         MovieManager manager = new MovieManager();
         Movie m1 = new Movie("Бладшот", "боевик");
         Movie m2 = new Movie("Вперёд", "мультфильм");
@@ -14,67 +14,72 @@ public class MovieManagerTest {
         manager.add(m2);
         manager.add(m3);
 
-        Movie[] all = manager.findAll();
-        assertEquals(3, all.length);
-        assertEquals(m1, all[0]);
-        assertEquals(m2, all[1]);
-        assertEquals(m3, all[2]);
+        assertArrayEquals(new Movie[]{m1, m2, m3}, manager.findAll());
     }
 
     @Test
-    public void testFindLastDefaultLimit() {
+    public void shouldReturnEmptyArraysOnEmptyManager() {
         MovieManager manager = new MovieManager();
+
+        assertArrayEquals(new Movie[]{}, manager.findAll());
+        assertArrayEquals(new Movie[]{}, manager.findLast());
+    }
+
+    @Test
+    public void shouldFindLastWithDefaultLimit() {
+        MovieManager manager = new MovieManager();
+        Movie[] added = new Movie[7];
         for (int i = 0; i < 7; i++) {
-            manager.add(new Movie("Film" + i, "genre"));
+            added[i] = new Movie("Film" + i, "genre");
+            manager.add(added[i]);
         }
 
-        Movie[] last = manager.findLast();
-        assertEquals(5, last.length);
-        assertEquals("Film6", last[0].getTitle());
-        assertEquals("Film2", last[4].getTitle());
+        // последние 5 в обратном порядке: 6, 5, 4, 3, 2
+        assertArrayEquals(
+                new Movie[]{added[6], added[5], added[4], added[3], added[2]},
+                manager.findLast()
+        );
     }
 
     @Test
-    public void testFindLastCustomLimit() {
+    public void shouldFindLastWithCustomLimit() {
         MovieManager manager = new MovieManager(3);
+        Movie[] added = new Movie[5];
         for (int i = 0; i < 5; i++) {
-            manager.add(new Movie("Film" + i, "genre"));
+            added[i] = new Movie("Film" + i, "genre");
+            manager.add(added[i]);
         }
 
-        Movie[] last = manager.findLast();
-        assertEquals(3, last.length);
-        assertEquals("Film4", last[0].getTitle());
-        assertEquals("Film2", last[2].getTitle());
+        assertArrayEquals(
+                new Movie[]{added[4], added[3], added[2]},
+                manager.findLast()
+        );
     }
 
     @Test
-    public void testFindLastLessThanLimit() {
+    public void shouldReturnAllIfFewerThanLimit() {
         MovieManager manager = new MovieManager(10);
-        manager.add(new Movie("Film1", "genre"));
-        manager.add(new Movie("Film2", "genre"));
+        Movie m1 = new Movie("Дженгтльмены", "боевик");
+        Movie m2 = new Movie("Человек-невидимка", "ужасы");
 
-        Movie[] last = manager.findLast();
-        assertEquals(2, last.length);
-        assertEquals("Film2", last[0].getTitle());
-        assertEquals("Film1", last[1].getTitle());
+        manager.add(m1);
+        manager.add(m2);
+
+        assertArrayEquals(new Movie[]{m2, m1}, manager.findLast());
     }
 
     @Test
-    public void testEmptyManagerFindAllAndFindLast() {
-        MovieManager manager = new MovieManager();
-        assertEquals(0, manager.findAll().length);
-        assertEquals(0, manager.findLast().length);
-    }
-
-    @Test
-    public void testExactlyLimit() {
+    public void shouldReturnAllWhenCountEqualsSize() {
         MovieManager manager = new MovieManager(3);
-        manager.add(new Movie("A", "g"));
-        manager.add(new Movie("B", "g"));
-        manager.add(new Movie("C", "g"));
+        Movie m1 = new Movie("A", "g");
+        Movie m2 = new Movie("B", "g");
+        Movie m3 = new Movie("C", "g");
 
-        Movie[] last = manager.findLast();
-        assertEquals(3, last.length);
-        assertEquals("C", last[0].getTitle());
+        manager.add(m1);
+        manager.add(m2);
+        manager.add(m3);
+
+        assertArrayEquals(new Movie[]{m3, m2, m1}, manager.findLast());
     }
 }
+
